@@ -33,6 +33,10 @@ struct conf_opts{
 };
 
 
+/* 删除空行,包括文件末尾的换行符 */
+void clean_blank_line(char *);
+
+
 #endif
 
 // vim:fdm=marker:nu:ts=4:sw=4:expandtab

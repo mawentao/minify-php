@@ -20,7 +20,7 @@ CXXFLAGS = -g -W -Wall -Wno-unused-parameter -pipe
 
 SRC = $(wildcard *.cpp)
 OBJ = $(patsubst %.cpp,%.o,$(SRC))
-BIN = clear_annotation
+BIN = minify-php
 
 .PHONY: all clean
 
@@ -30,7 +30,7 @@ all : $(BIN)
 	cp $^ output/
 	rm -f *.o
 
-clear_annotation : $(OBJ)
+minify-php : $(OBJ)
 	$(CPP) -o $@ $^ $(LDLIBS) 
 
 %.o : %.cpp

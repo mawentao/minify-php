@@ -15,7 +15,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
-#include "clear_annotation.h"
+#include "minify.h"
 using namespace std;
 
 #define VERSION "1.0.0"
@@ -29,13 +29,15 @@ struct conf_opts conf = {
 
 void print_usage(const char *pname)
 {/*{{{*/
-     cout<<pname<<" "<<VERSION<<endl;
-     cout<<"[usage]: "<<pname<<" [-d directory] [-f filetype] [-r] [-w]\n";
+    cout<<pname<<" "<<VERSION<<endl;
+    cout<<"[usage]: "<<pname<<" [-d directory] [-f filetype] [-r] [-w]\n";
+    exit(0);
 }/*}}}*/
 
 /** 解析命令行参数，读取配置并初始化 */
 int parse_args(int argc, char *argv[])
 {/*{{{*/
+    if (argc<2) print_usage(argv[0]);
     const char *shortopts = "d:f:rwh";
     struct option longopts[] = {
         {"directory",  required_argument, NULL, 'd'},
@@ -206,7 +208,7 @@ void process_file(const char *fname)
         fprintf(stderr, "FATAL: new char[%d] fail\n", size);
         exit(0);
     }
-    printf("clear_notes: %s (%d B)\n", fname, size);
+    printf("minify-php: %s (%d B)\n", fname, size);
 
     //2. read and clear
     FILE *fi;
@@ -269,6 +271,8 @@ void process_file(const char *fname)
     }
     fclose(fi);
     *p='\0';
+
+    clean_blank_line(buf);  // 删除空行
 
     //3. write back
     if (!conf.writeback) {

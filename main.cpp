@@ -210,100 +210,17 @@ void process_file(const char *fname)
     }
     printf("minify-php: %s (%d B)\n", fname, size);
 
-    //2. read and clear
-    FILE *fi;
-    char c;
-    char *p=buf;
-    fi = fopen(fname, "r");
-    int state = 0;
-    while ((c=getc(fi)) != EOF) {
-        switch (state) {
-            case 0:
-                if (c=='/') {state=1;}
-                else {
-                    *p++ = c;
-                    if (c=='\'') state=5;
-                    else if (c=='"') state = 7;
-                }
-                break;
-            case 1:
-                if (c=='/') {state=2;}
-                else if (c=='*') {state=3;}
-                else {
-                    *p++ = '/';
-                    *p++ = c;
-                    state = 0;
-                }
-                break;
-            case 2:
-                if (c=='\n') {
-                    *p++ = c;
-                    state=0;
-                }
-                break;
-            case 3:
-                if (c=='*') state=4;
-                break;
-            case 4:
-                if (c=='/') state=0;
-                else if (c=='*') state=4;
-                else state=3;
-                break;
-            case 5:
-                *p++ = c;
-                if (c =='\\') {state=6;}
-                else if (c=='\'') {state=0;}
-                break;
-            case 6:
-                *p++ = c;
-                state=5;
-                break;
-            case 7:
-                *p++ = c;
-                if (c =='\\') {state=8;}
-                else if (c=='"') {state=0;}
-                break;
-            case 8:
-                *p++ = c;
-                state=7;
-                break;
-        }
-    }
-    fclose(fi);
-    *p='\0';
-
-    clean_blank_line(buf);  // 删除空行
-
-    //3. write back
+    //2. 读取文件内容
+    file_get_contents(fname,buf,size);
+    //3. 删除PHP代码注释
+    clean_php_annotation(buf);
+    //4. 删除空行及文件末尾多余的换行符
+    clean_blank_line(buf);
+    //5. write back
     if (!conf.writeback) {
         printf("%s\n",buf);
     } else {
-        FILE *fo = fopen(fname, "w");
-        if (fo==NULL) {
-            fprintf(stderr, "FATAL: fopen %s fail\n", fname);
-            exit(0);
-        }
-        p = buf;
-        int state=0;
-        while (*p) {
-            switch (state) {
-                case 0:
-                    if (*p == '\n') {
-                        state=1;
-                    } else {
-                        fprintf(fo, "%c", *p);
-                    }
-                    break;
-                case 1:
-                    if (*p!='\n') {
-                        fprintf(fo, "\n%c", *p);
-                        state=0;
-                    }
-                    break;
-            }
-            ++p;
-        }
-        fclose(fo);
+        file_put_contents(fname,buf);
     }
     delete []buf;
 }

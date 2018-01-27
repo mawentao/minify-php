@@ -32,6 +32,14 @@ struct conf_opts{
     int writeback;        /* 写回文件 */
 };
 
+/* 读取文件内容 */
+void file_get_contents(const char *filepath,char *buf,int bufsize);
+
+/* 写入文件 */
+void file_put_contents(const char *filepath,const char *buf);
+
+/* 删除PHP代码注释 */
+void clean_php_annotation(char *buf);
 
 /* 删除空行,包括文件末尾的换行符 */
 void clean_blank_line(char *);
